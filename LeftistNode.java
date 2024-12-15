@@ -1,15 +1,15 @@
 public class LeftistNode {
     int vertex;
     int key;
-    int npl; // null path length
-    LeftistNode left;
-    LeftistNode right;
+    LeftistNode leftChild;
+    LeftistNode rightChild;
+    int nullPathLength;
 
     public LeftistNode(int vertex, int key) {
         this.vertex = vertex;
         this.key = key;
-        this.npl = 0;
-        this.left = null;
-        this.right = null;
+        this.leftChild = null;
+        this.rightChild = null;
+        this.nullPathLength = 0;
     }
 }

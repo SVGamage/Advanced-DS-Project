@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,16 +8,16 @@ public class DijkstraAlgorithm {
         List<List<Pair<Integer, Integer>>> adjacencyList = graph.getAdjacencyList();
         int numVertices = adjacencyList.size();
 
-        LeftistHeap lt = new LeftistHeap();
+        LeftistHeap lh = new LeftistHeap();
         List<Integer> minDist = new ArrayList<>(Collections.nCopies(numVertices, INF));
         minDist.set(source, 0);
 
         for (int i = 0; i < numVertices; i++) {
-            lt.insert(i, minDist.get(i));
+            lh.insert(i, minDist.get(i));
         }
 
-        while (!lt.isEmpty()) {
-            LeftistNode minNode = lt.deleteMin();
+        while (!lh.isEmpty()) {
+            LeftistNode minNode = lh.deleteMin();
             int u = minNode.vertex;
 
             for (Pair<Integer, Integer> edge : adjacencyList.get(u)) {
@@ -27,7 +26,7 @@ public class DijkstraAlgorithm {
 
                 if (minDist.get(u) + weight < minDist.get(v)) {
                     minDist.set(v, minDist.get(u) + weight);
-                    lt.decreaseKey(v, minDist.get(v));
+                    lh.decreaseKey(v, minDist.get(v));
                 }
             }
         }

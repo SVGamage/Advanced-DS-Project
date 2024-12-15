@@ -42,14 +42,14 @@ public class DijkstraAlgorithm {
         List<Integer> minDist = new ArrayList<>(Collections.nCopies(numVertices, INF));
         minDist.set(source, 0);
 
-        List<FibonacciHeap.FibNode> nodes = new ArrayList<>(numVertices);
+        List<FibonacciNode> nodes = new ArrayList<>(numVertices);
 
         for (int i = 0; i < numVertices; i++) {
             nodes.add(fh.insert(minDist.get(i), i));
         }
 
         while (!fh.isEmpty()) {
-            FibonacciHeap.FibNode minNode = fh.extractMin();
+            FibonacciNode minNode = fh.extractMin();
             int u = minNode.value;
 
             for (Pair<Integer, Integer> edge : adjacencyList.get(u)) {

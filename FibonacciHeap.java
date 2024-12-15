@@ -1,29 +1,9 @@
 import java.util.*;
 
 public class FibonacciHeap {
-    public static class FibNode {
-        int key;
-        int value;
-        int degree;
-        boolean isChildCut;
-        FibNode parent;
-        FibNode child;
-        FibNode left;
-        FibNode right;
 
-        FibNode(int key, int value) {
-            this.key = key;
-            this.value = value;
-            this.degree = 0;
-            this.isChildCut = false;
-            this.parent = null;
-            this.child = null;
-            this.left = this;
-            this.right = this;
-        }
-    }
 
-    private FibNode minimumNode;
+    private FibonacciNode minimumNode;
     private int heapSize;
 
     public FibonacciHeap() {
@@ -31,8 +11,8 @@ public class FibonacciHeap {
         this.heapSize = 0;
     }
 
-    public FibNode insert(int key, int value) {
-        FibNode newNode = new FibNode(key, value);
+    public FibonacciNode insert(int key, int value) {
+        FibonacciNode newNode = new FibonacciNode(key, value);
         if (minimumNode == null) {
             minimumNode = newNode;
         } else {
@@ -45,7 +25,7 @@ public class FibonacciHeap {
         return newNode;
     }
 
-    private void mergeWithRootList(FibNode newNode) {
+    private void mergeWithRootList(FibonacciNode newNode) {
         if (minimumNode == null) {
             minimumNode = newNode;
         } else {
@@ -59,7 +39,7 @@ public class FibonacciHeap {
         }
     }
 
-    private void removeFromRootList(FibNode nodeToRemove) {
+    private void removeFromRootList(FibonacciNode nodeToRemove) {
         if (nodeToRemove.right == nodeToRemove) {
             minimumNode = null;
         } else {
@@ -71,7 +51,7 @@ public class FibonacciHeap {
         }
     }
 
-    private void removeFromChildList(FibNode parent, FibNode childToRemove) {
+    private void removeFromChildList(FibonacciNode parent, FibonacciNode childToRemove) {
         if (childToRemove.right == childToRemove) {
             parent.child = null;
         } else {
@@ -84,7 +64,7 @@ public class FibonacciHeap {
         childToRemove.left = childToRemove.right = childToRemove;
     }
 
-    private FibNode mergeWithChildList(FibNode childList, FibNode newNode) {
+    private FibonacciNode mergeWithChildList(FibonacciNode childList, FibonacciNode newNode) {
         if (childList == null) {
             return newNode;
         } else {
@@ -96,11 +76,11 @@ public class FibonacciHeap {
         return childList;
     }
 
-    public FibNode extractMin() {
-        FibNode extractedMin = minimumNode;
+    public FibonacciNode extractMin() {
+        FibonacciNode extractedMin = minimumNode;
         if (extractedMin != null) {
             if (extractedMin.child != null) {
-                for (FibNode childNode : iterate(extractedMin.child)) {
+                for (FibonacciNode childNode : iterate(extractedMin.child)) {
                     mergeWithRootList(childNode);
                     childNode.parent = null;
                 }
@@ -117,13 +97,13 @@ public class FibonacciHeap {
         return extractedMin;
     }
 
-    public void decreaseKey(FibNode node, int newKey) {
+    public void decreaseKey(FibonacciNode node, int newKey) {
         if (newKey > node.key) {
             throw new IllegalArgumentException("Invalid operation: new key (" + newKey + ") cannot be greater than current key (" + node.key + ").");
         }
 
         node.key = newKey;
-        FibNode parentNode = node.parent;
+        FibonacciNode parentNode = node.parent;
 
         if (parentNode != null && node.key < parentNode.key) {
             cut(node, parentNode);
@@ -135,7 +115,7 @@ public class FibonacciHeap {
         }
     }
 
-    private void cut(FibNode nodeToCut, FibNode parentNode) {
+    private void cut(FibonacciNode nodeToCut, FibonacciNode parentNode) {
         removeFromChildList(parentNode, nodeToCut);
         parentNode.degree--;
         mergeWithRootList(nodeToCut);
@@ -143,8 +123,8 @@ public class FibonacciHeap {
         nodeToCut.isChildCut = false;
     }
 
-    private void cascadingCut(FibNode parentNode) {
-        FibNode grandparentNode = parentNode.parent;
+    private void cascadingCut(FibonacciNode parentNode) {
+        FibonacciNode grandparentNode = parentNode.parent;
         if (grandparentNode != null) {
             if (!parentNode.isChildCut) {
                 parentNode.isChildCut = true;
@@ -155,11 +135,11 @@ public class FibonacciHeap {
         }
     }
 
-    private List<FibNode> iterate(FibNode head) {
-        List<FibNode> nodes = new ArrayList<>();
+    private List<FibonacciNode> iterate(FibonacciNode head) {
+        List<FibonacciNode> nodes = new ArrayList<>();
         if (head == null) return nodes;
 
-        FibNode currentNode = head;
+        FibonacciNode currentNode = head;
         do {
             nodes.add(currentNode);
             currentNode = currentNode.right;
@@ -170,17 +150,17 @@ public class FibonacciHeap {
 
     private void consolidate() {
         int maxDegree = (int) (Math.log(heapSize) / Math.log(2)) + 10;
-        List<FibNode> nodeArray = new ArrayList<>(Collections.nCopies(maxDegree, null));
+        List<FibonacciNode> nodeArray = new ArrayList<>(Collections.nCopies(maxDegree, null));
 
-        List<FibNode> nodes = iterate(minimumNode);
+        List<FibonacciNode> nodes = iterate(minimumNode);
 
-        for (FibNode currentNode : nodes) {
-            FibNode x = currentNode;
+        for (FibonacciNode currentNode : nodes) {
+            FibonacciNode x = currentNode;
             int degree = x.degree;
             while (nodeArray.get(degree) != null) {
-                FibNode y = nodeArray.get(degree);
+                FibonacciNode y = nodeArray.get(degree);
                 if (x.key > y.key) {
-                    FibNode temp = x;
+                    FibonacciNode temp = x;
                     x = y;
                     y = temp;
                 }
@@ -192,7 +172,7 @@ public class FibonacciHeap {
         }
 
         minimumNode = null;
-        for (FibNode node : nodeArray) {
+        for (FibonacciNode node : nodeArray) {
             if (node != null) {
                 if (minimumNode == null || node.key < minimumNode.key) {
                     minimumNode = node;
@@ -201,7 +181,7 @@ public class FibonacciHeap {
         }
     }
 
-    private void link(FibNode childNode, FibNode parentNode) {
+    private void link(FibonacciNode childNode, FibonacciNode parentNode) {
         removeFromRootList(childNode);
         childNode.left = childNode.right = childNode; // Isolate the child
         parentNode.child = mergeWithChildList(parentNode.child, childNode);

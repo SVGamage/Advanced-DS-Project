@@ -59,19 +59,19 @@ public class Main {
         Graph graph = generator.generateConnectedGraph(n, density);
 
         // Measure time for Leftist Heap
-        long startLeftist = System.currentTimeMillis();
+        long startLeftist = System.nanoTime();
         List<Integer> distancesLeftist = DijkstraAlgorithm.dijkstraLeftist(graph, source);
-        long timeLeftist = System.currentTimeMillis() - startLeftist;
+        long timeLeftist = System.nanoTime() - startLeftist;
 
         // Measure time for Fibonacci Heap
-        long startFib = System.currentTimeMillis();
+        long startFib = System.nanoTime();
         List<Integer> distancesFib = DijkstraAlgorithm.dijkstraFibonacci(graph, source);
-        long timeFib = System.currentTimeMillis() - startFib;
+        long timeFib = System.nanoTime() - startFib;
 
         System.out.println("Random Graph Results:");
         System.out.println("Vertices: " + n + ", Density: " + density + ", Source: " + source);
-        System.out.println("Leftist Heap Time: " + timeLeftist + "ms");
-        System.out.println("Fibonacci Heap Time: " + timeFib + "ms");
+        System.out.printf("Leftist Heap Time: %.3f ms\n" , timeLeftist/1000000.0);
+        System.out.printf("Fibonacci Heap Time: %.3f ms\n" , timeFib/1000000.0);
     }
 
     private static void handleFileMode(String filename, boolean useLeftist) throws IOException {

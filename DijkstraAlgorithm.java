@@ -62,5 +62,6 @@ public class DijkstraAlgorithm {
                 }
             }
         }
-        return minDist;}
+        return minDist;
+    }
 }

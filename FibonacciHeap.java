@@ -1,8 +1,6 @@
 import java.util.*;
 
 public class FibonacciHeap {
-
-
     private FibonacciNode minimumNode;
     private int heapSize;
 

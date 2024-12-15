@@ -3,6 +3,12 @@
 This program allows you to run graph algorithms in two modes: **Random Mode** and **File Mode**. It supports both Leftist Heaps and Fibonacci Heaps for graph processing. Below are detailed instructions for usage and input file formats.
 
 ## Usage
+### Compilation
+If the program is provided in source code format, you can compile it using the following command:
+
+```bash
+javac *.java
+```
 
 ### Random Mode
 Run the program in Random Mode to generate a random graph with specified parameters:
@@ -61,12 +67,6 @@ The program computes the graph algorithm's result based on the provided input an
 ## Requirements
 - **Java Runtime Environment (JRE)** to execute the program.
 
-## Compilation
-If the program is provided in source code format, you can compile it using the following command:
-
-```bash
-javac *.java
-```
 
 ## Execution
 Once compiled, run the program as described above using the appropriate command for the desired mode.

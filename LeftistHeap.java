@@ -5,11 +5,24 @@ public class LeftistHeap {
         root = null;
     }
 
+    public void insert(int vertex, int key) {
+        LeftistNode node = new LeftistNode(vertex, key);
+        root = merge(root, node);
+    }
+
+    public LeftistNode deleteMin() {
+        if (root == null) return null;
+
+        LeftistNode min = root;
+        root = merge(root.left, root.right);
+        return min;
+    }
+
     private LeftistNode merge(LeftistNode h1, LeftistNode h2) {
         if (h1 == null) return h2;
         if (h2 == null) return h1;
 
-        if (h1.key > h2.key) {
+        if (h2.key < h1.key) {
             LeftistNode temp = h1;
             h1 = h2;
             h2 = temp;
@@ -30,17 +43,6 @@ public class LeftistHeap {
         }
 
         return h1;
-    }
-
-    public void insert(int vertex, int key) {
-        root = merge(new LeftistNode(vertex, key), root);
-    }
-
-    public LeftistNode deleteMin() {
-        if (root == null) return null;
-        LeftistNode min = root;
-        root = merge(root.left, root.right);
-        return min;
     }
 
     public boolean isEmpty() {

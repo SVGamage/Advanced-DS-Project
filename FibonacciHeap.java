@@ -3,9 +3,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// FibonacciHeap.java
 public class FibonacciHeap {
-    private static class FibNode {
+    class FibNode {
         int vertex;
         int key;
         int degree;

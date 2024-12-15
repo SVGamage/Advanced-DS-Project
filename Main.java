@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -59,12 +60,12 @@ public class Main {
 
         // Measure time for Leftist Heap
         long startLeftist = System.currentTimeMillis();
-        int[] distancesLeftist = DijkstraAlgorithm.dijkstraLeftist(graph, source);
+        List<Integer> distancesLeftist = DijkstraAlgorithm.dijkstraLeftist(graph, source);
         long timeLeftist = System.currentTimeMillis() - startLeftist;
 
         // Measure time for Fibonacci Heap
         long startFib = System.currentTimeMillis();
-        int[] distancesFib = DijkstraAlgorithm.dijkstraFibonacci(graph, source);
+        List<Integer> distancesFib = DijkstraAlgorithm.dijkstraFibonacci(graph, source);
         long timeFib = System.currentTimeMillis() - startFib;
 
         System.out.println("Random Graph Results:");
@@ -77,7 +78,7 @@ public class Main {
         Graph graph = FileHandler.readGraphFromFile(filename);
         int source = 0; // assuming source is always 0 in file mode
 
-        int[] distances;
+        List<Integer> distances;
         if (useLeftist) {
             distances = DijkstraAlgorithm.dijkstraLeftist(graph, source);
         } else {

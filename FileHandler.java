@@ -23,7 +23,7 @@ public class FileHandler {
         }
     }
 
-    public static void printResults(int[] distances) {
+    public static void printResults(List<Integer> distances) {
         for (int distance : distances) {
             System.out.println(distance);
         }

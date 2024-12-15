@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomGraphGenerator {
     private Random random;
@@ -9,36 +10,23 @@ public class RandomGraphGenerator {
 
     public Graph generateConnectedGraph(int n, double density) {
         Graph graph = new Graph(n);
-        int maxEdges = (n * (n - 1)) / 2;
-        int targetEdges = (int) (maxEdges * density);
+        int maxEdges = n * (n - 1) / 2;
+        int numEdges = (int) (density * maxEdges);
 
-        // Generate initial spanning tree to ensure connectivity
-        for (int i = 1; i < n; i++) {
-            int cost = random.nextInt(1000) + 1;
-            graph.addEdge(i - 1, i, cost);
-            targetEdges--;
-        }
+        Set<Pair<Integer, Integer>> edges = new HashSet<>();
+        Random random = ThreadLocalRandom.current();
 
-        // Add remaining edges randomly
-        Set<String> addedEdges = new HashSet<>();
-        for (int i = 0; i < n - 1; i++) {
-            addedEdges.add(i + "," + (i + 1));
-            addedEdges.add((i + 1) + "," + i);
-        }
-
-        while (targetEdges > 0) {
-            int v1 = random.nextInt(n);
-            int v2 = random.nextInt(n);
-
-            if (v1 != v2 && !addedEdges.contains(v1 + "," + v2)) {
-                int cost = random.nextInt(1000) + 1;
-                graph.addEdge(v1, v2, cost);
-                addedEdges.add(v1 + "," + v2);
-                addedEdges.add(v2 + "," + v1);
-                targetEdges--;
+        while (edges.size() < numEdges) {
+            int u = random.nextInt(n);
+            int v = random.nextInt(n);
+            int weight = random.nextInt(1000) + 1;
+            if (u != v && !edges.contains(new Pair<>(u, v)) && !edges.contains(new Pair<>(v, u))) {
+                graph.addEdge(u, v, weight);
+                edges.add(new Pair<>(u, v));
             }
         }
 
+        System.out.printf("Successfully generated a random graph with %d vertices and %d edges.\n", n, numEdges);
         return graph;
     }
 }

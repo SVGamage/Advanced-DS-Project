@@ -1,69 +1,66 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class DijkstraAlgorithm {
-    public static int[] dijkstraLeftist(Graph graph, int source) {
-        int V = graph.getV();
-        int[] dist = new int[V];
-        Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[source] = 0;
+    private static final int INF = Integer.MAX_VALUE;
+    public static List<Integer> dijkstraLeftist(Graph graph, int source) {
+        List<List<Pair<Integer, Integer>>> adjacencyList = graph.getAdjacencyList();
+        int numVertices = adjacencyList.size();
 
-        LeftistHeap heap = new LeftistHeap();
-        heap.insert(source, 0);
+        LeftistHeap lt = new LeftistHeap();
+        List<Integer> minDist = new ArrayList<>(Collections.nCopies(numVertices, INF));
+        minDist.set(source, 0);
 
-        boolean[] visited = new boolean[V];
+        for (int i = 0; i < numVertices; i++) {
+            lt.insert(i, minDist.get(i));
+        }
 
-        while (!heap.isEmpty()) {
-            LeftistNode min = heap.deleteMin();
-            int u = min.vertex;
+        while (!lt.isEmpty()) {
+            LeftistNode minNode = lt.deleteMin();
+            int u = minNode.vertex;
 
-            if (visited[u]) continue;
-            visited[u] = true;
+            for (Pair<Integer, Integer> edge : adjacencyList.get(u)) {
+                int v = edge.getKey();
+                int weight = edge.getValue();
 
-            for (Graph.Edge edge : graph.getAdjList().get(u)) {
-                int v = edge.dest;
-                int weight = edge.weight;
-
-                if (!visited[v] && dist[u] != Integer.MAX_VALUE &&
-                        dist[u] + weight < dist[v]) {
-                    dist[v] = dist[u] + weight;
-                    heap.insert(v, dist[v]);
+                if (minDist.get(u) + weight < minDist.get(v)) {
+                    minDist.set(v, minDist.get(u) + weight);
+                    lt.decreaseKey(v, minDist.get(v));
                 }
             }
         }
-
-        return dist;
+        return minDist;
     }
 
-    public static int[] dijkstraFibonacci(Graph graph, int source) {
-        int V = graph.getV();
-        int[] dist = new int[V];
-        Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[source] = 0;
+    public static  List<Integer> dijkstraFibonacci(Graph graph, int source) {
+        List<List<Pair<Integer, Integer>>> adjacencyList = graph.getAdjacencyList();
+        int numVertices = adjacencyList.size();
 
-        FibonacciHeap heap = new FibonacciHeap();
-        heap.insert(source, 0);
+        FibonacciHeap fh = new FibonacciHeap();
+        List<Integer> minDist = new ArrayList<>(Collections.nCopies(numVertices, INF));
+        minDist.set(source, 0);
 
-        boolean[] visited = new boolean[V];
+        List<FibonacciHeap.FibNode> nodes = new ArrayList<>(numVertices);
 
-        while (!heap.isEmpty()) {
-            FibonacciHeap.FibNode min = heap.extractMin();
-            int u = min.vertex;
+        for (int i = 0; i < numVertices; i++) {
+            nodes.add(fh.insert(minDist.get(i), i));
+        }
 
-            if (visited[u]) continue;
-            visited[u] = true;
+        while (!fh.isEmpty()) {
+            FibonacciHeap.FibNode minNode = fh.extractMin();
+            int u = minNode.value;
 
-            for (Graph.Edge edge : graph.getAdjList().get(u)) {
-                int v = edge.dest;
-                int weight = edge.weight;
+            for (Pair<Integer, Integer> edge : adjacencyList.get(u)) {
+                int v = edge.getKey();
+                int weight = edge.getValue();
 
-                if (!visited[v] && dist[u] != Integer.MAX_VALUE &&
-                        dist[u] + weight < dist[v]) {
-                    dist[v] = dist[u] + weight;
-                    heap.insert(v, dist[v]);
+                if (minDist.get(u) + weight < minDist.get(v)) {
+                    minDist.set(v, minDist.get(u) + weight);
+                    fh.decreaseKey(nodes.get(v), minDist.get(v));
                 }
             }
         }
-
-        return dist;
-    }
+        return minDist;}
 }

@@ -1,34 +1,21 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FibonacciHeap {
-    private FibNode min;
-    private int size;
-    private Map<Integer, FibNode> vertices;
-
-    public FibonacciHeap() {
-        min = null;
-        size = 0;
-        vertices = new HashMap<>();
-    }
-
     public static class FibNode {
-        int vertex;
         int key;
+        int value;
         int degree;
-        boolean marked;
+        boolean isChildCut;
         FibNode parent;
         FibNode child;
         FibNode left;
         FibNode right;
 
-        public FibNode(int vertex, int key) {
-            this.vertex = vertex;
+        FibNode(int key, int value) {
             this.key = key;
+            this.value = value;
             this.degree = 0;
-            this.marked = false;
+            this.isChildCut = false;
             this.parent = null;
             this.child = null;
             this.left = this;
@@ -36,199 +23,194 @@ public class FibonacciHeap {
         }
     }
 
-    public void insert(int vertex, int key) {
-        FibNode node = new FibNode(vertex, key);
-        vertices.put(vertex, node);
+    private FibNode minimumNode;
+    private int heapSize;
 
-        if (min == null) {
-            min = node;
+    public FibonacciHeap() {
+        this.minimumNode = null;
+        this.heapSize = 0;
+    }
+
+    public FibNode insert(int key, int value) {
+        FibNode newNode = new FibNode(key, value);
+        if (minimumNode == null) {
+            minimumNode = newNode;
         } else {
-            // Insert into root list
-            node.right = min.right;
-            node.left = min;
-            min.right.left = node;
-            min.right = node;
-
-            if (node.key < min.key) {
-                min = node;
+            mergeWithRootList(newNode);
+            if (newNode.key < minimumNode.key) {
+                minimumNode = newNode;
             }
         }
-        size++;
+        heapSize++;
+        return newNode;
+    }
+
+    private void mergeWithRootList(FibNode newNode) {
+        if (minimumNode == null) {
+            minimumNode = newNode;
+        } else {
+            newNode.left = minimumNode;
+            newNode.right = minimumNode.right;
+            minimumNode.right.left = newNode;
+            minimumNode.right = newNode;
+            if (newNode.key < minimumNode.key) {
+                minimumNode = newNode;
+            }
+        }
+    }
+
+    private void removeFromRootList(FibNode nodeToRemove) {
+        if (nodeToRemove.right == nodeToRemove) {
+            minimumNode = null;
+        } else {
+            nodeToRemove.left.right = nodeToRemove.right;
+            nodeToRemove.right.left = nodeToRemove.left;
+            if (minimumNode == nodeToRemove) {
+                minimumNode = nodeToRemove.right;
+            }
+        }
+    }
+
+    private void removeFromChildList(FibNode parent, FibNode childToRemove) {
+        if (childToRemove.right == childToRemove) {
+            parent.child = null;
+        } else {
+            if (parent.child == childToRemove) {
+                parent.child = childToRemove.right;
+            }
+            childToRemove.left.right = childToRemove.right;
+            childToRemove.right.left = childToRemove.left;
+        }
+        childToRemove.left = childToRemove.right = childToRemove;
+    }
+
+    private FibNode mergeWithChildList(FibNode childList, FibNode newNode) {
+        if (childList == null) {
+            return newNode;
+        } else {
+            newNode.left = childList;
+            newNode.right = childList.right;
+            childList.right.left = newNode;
+            childList.right = newNode;
+        }
+        return childList;
     }
 
     public FibNode extractMin() {
-        FibNode z = min;
-        if (z != null) {
-            // Add all children to root list
-            if (z.child != null) {
-                FibNode child = z.child;
-                do {
-                    FibNode next = child.right;
-                    // Add to root list
-                    child.right = min.right;
-                    child.left = min;
-                    min.right.left = child;
-                    min.right = child;
-
-                    child.parent = null;
-                    child = next;
-                } while (child != z.child);
+        FibNode extractedMin = minimumNode;
+        if (extractedMin != null) {
+            if (extractedMin.child != null) {
+                for (FibNode childNode : iterate(extractedMin.child)) {
+                    mergeWithRootList(childNode);
+                    childNode.parent = null;
+                }
             }
-
-            // Remove z from root list
-            z.left.right = z.right;
-            z.right.left = z.left;
-
-            if (z == z.right) {
-                min = null;
+            removeFromRootList(extractedMin);
+            if (extractedMin == extractedMin.right) {
+                minimumNode = null;
             } else {
-                min = z.right;
+                minimumNode = extractedMin.right;
                 consolidate();
             }
-            size--;
-            vertices.remove(z.vertex);
+            heapSize--;
         }
-        return z;
+        return extractedMin;
+    }
+
+    public void decreaseKey(FibNode node, int newKey) {
+        if (newKey > node.key) {
+            throw new IllegalArgumentException("Invalid operation: new key (" + newKey + ") cannot be greater than current key (" + node.key + ").");
+        }
+
+        node.key = newKey;
+        FibNode parentNode = node.parent;
+
+        if (parentNode != null && node.key < parentNode.key) {
+            cut(node, parentNode);
+            cascadingCut(parentNode);
+        }
+
+        if (node.key < minimumNode.key) {
+            minimumNode = node;
+        }
+    }
+
+    private void cut(FibNode nodeToCut, FibNode parentNode) {
+        removeFromChildList(parentNode, nodeToCut);
+        parentNode.degree--;
+        mergeWithRootList(nodeToCut);
+        nodeToCut.parent = null;
+        nodeToCut.isChildCut = false;
+    }
+
+    private void cascadingCut(FibNode parentNode) {
+        FibNode grandparentNode = parentNode.parent;
+        if (grandparentNode != null) {
+            if (!parentNode.isChildCut) {
+                parentNode.isChildCut = true;
+            } else {
+                cut(parentNode, grandparentNode);
+                cascadingCut(grandparentNode);
+            }
+        }
+    }
+
+    private List<FibNode> iterate(FibNode head) {
+        List<FibNode> nodes = new ArrayList<>();
+        if (head == null) return nodes;
+
+        FibNode currentNode = head;
+        do {
+            nodes.add(currentNode);
+            currentNode = currentNode.right;
+        } while (currentNode != head);
+
+        return nodes;
     }
 
     private void consolidate() {
-        int maxDegree = (int)(Math.log(size) / Math.log(2)) + 1;
-        FibNode[] degreeTable = new FibNode[maxDegree];
+        int maxDegree = (int) (Math.log(heapSize) / Math.log(2)) + 10;
+        List<FibNode> nodeArray = new ArrayList<>(Collections.nCopies(maxDegree, null));
 
-        // Get list of all roots
-        List<FibNode> rootList = new ArrayList<>();
-        if (min != null) {
-            FibNode current = min;
-            do {
-                rootList.add(current);
-                current = current.right;
-            } while (current != min);
-        }
+        List<FibNode> nodes = iterate(minimumNode);
 
-        // Consolidate trees of same degree
-        for (FibNode root : rootList) {
-            FibNode x = root;
+        for (FibNode currentNode : nodes) {
+            FibNode x = currentNode;
             int degree = x.degree;
-
-            while (degreeTable[degree] != null) {
-                FibNode y = degreeTable[degree];
+            while (nodeArray.get(degree) != null) {
+                FibNode y = nodeArray.get(degree);
                 if (x.key > y.key) {
                     FibNode temp = x;
                     x = y;
                     y = temp;
                 }
-
                 link(y, x);
-                degreeTable[degree] = null;
+                nodeArray.set(degree, null);
                 degree++;
             }
-            degreeTable[degree] = x;
+            nodeArray.set(degree, x);
         }
 
-        // Rebuild root list and find new min
-        min = null;
-        for (FibNode node : degreeTable) {
+        minimumNode = null;
+        for (FibNode node : nodeArray) {
             if (node != null) {
-                if (min == null) {
-                    min = node;
-                    node.left = node;
-                    node.right = node;
-                } else {
-                    // Add to root list
-                    node.right = min.right;
-                    node.left = min;
-                    min.right.left = node;
-                    min.right = node;
-
-                    if (node.key < min.key) {
-                        min = node;
-                    }
+                if (minimumNode == null || node.key < minimumNode.key) {
+                    minimumNode = node;
                 }
             }
         }
     }
 
-    private void link(FibNode y, FibNode x) {
-        // Remove y from root list
-        y.left.right = y.right;
-        y.right.left = y.left;
-
-        // Make y a child of x
-        if (x.child == null) {
-            x.child = y;
-            y.right = y;
-            y.left = y;
-        } else {
-            y.right = x.child.right;
-            y.left = x.child;
-            x.child.right.left = y;
-            x.child.right = y;
-        }
-
-        y.parent = x;
-        x.degree++;
-        y.marked = false;
-    }
-
-    public void decreaseKey(int vertex, int newKey) {
-        FibNode x = vertices.get(vertex);
-        if (x == null || newKey >= x.key) {
-            return;
-        }
-
-        x.key = newKey;
-        FibNode y = x.parent;
-
-        if (y != null && x.key < y.key) {
-            cut(x, y);
-            cascadingCut(y);
-        }
-
-        if (x.key < min.key) {
-            min = x;
-        }
-    }
-
-    private void cut(FibNode x, FibNode y) {
-        // Remove x from child list of y
-        if (x.right == x) {
-            y.child = null;
-        } else {
-            x.right.left = x.left;
-            x.left.right = x.right;
-            if (y.child == x) {
-                y.child = x.right;
-            }
-        }
-        y.degree--;
-
-        // Add x to root list
-        x.right = min.right;
-        x.left = min;
-        min.right.left = x;
-        min.right = x;
-
-        x.parent = null;
-        x.marked = false;
-    }
-
-    private void cascadingCut(FibNode y) {
-        FibNode z = y.parent;
-        if (z != null) {
-            if (!y.marked) {
-                y.marked = true;
-            } else {
-                cut(y, z);
-                cascadingCut(z);
-            }
-        }
+    private void link(FibNode childNode, FibNode parentNode) {
+        removeFromRootList(childNode);
+        childNode.left = childNode.right = childNode; // Isolate the child
+        parentNode.child = mergeWithChildList(parentNode.child, childNode);
+        childNode.parent = parentNode;
+        parentNode.degree++;
+        childNode.isChildCut = false;
     }
 
     public boolean isEmpty() {
-        return min == null;
-    }
-
-    public FibNode getMin() {
-        return min;
+        return minimumNode == null;
     }
 }

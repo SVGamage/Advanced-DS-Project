@@ -1,37 +1,26 @@
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Graph {
-    private int V; // number of vertices
-    private List<List<Edge>> adj; // adjacency list
+    private final List<List<Pair<Integer, Integer>>> adjacencyList;
 
-    static class Edge {
-        int dest;
-        int weight;
-
-        Edge(int dest, int weight) {
-            this.dest = dest;
-            this.weight = weight;
+    public Graph(int numVertices) {
+        adjacencyList = new ArrayList<>();
+        for (int i = 0; i < numVertices; i++) {
+            adjacencyList.add(new ArrayList<>());
         }
     }
 
-    public Graph(int v) {
-        V = v;
-        adj = new ArrayList<>(V);
-        for (int i = 0; i < V; i++) {
-            adj.add(new ArrayList<>());
-        }
+    public void addEdge(int u, int v, int weight) {
+        adjacencyList.get(u).add(new Pair<>(v, weight));
+        adjacencyList.get(v).add(new Pair<>(u, weight));
     }
 
-    public void addEdge(int src, int dest, int weight) {
-        adj.get(src).add(new Edge(dest, weight));
-        adj.get(dest).add(new Edge(src, weight)); // since undirected graph
+    public List<List<Pair<Integer, Integer>>> getAdjacencyList() {
+        return adjacencyList;
     }
 
-    public List<List<Edge>> getAdjList() {
-        return adj;
-    }
-
-    public int getV() {
-        return V;
+    public static boolean checkDistances(List<Integer> leftistDistances, List<Integer> fibDistances) {
+        return leftistDistances.equals(fibDistances);
     }
 }
